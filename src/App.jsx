@@ -1,252 +1,370 @@
-import React from "react";
+import React, { useState } from "react";
 
-class Layout extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      text: "",
-      result: [],
-      prevResult: [],
-    };
-    this.handleChange = this.handleChange.bind(this);
-    this.calculate = this.calculate.bind(this);
-    this.back = this.back.bind(this);
-  }
+function App() {
+  const [inputState, setinputState] = useState({
+    operacion: "",
+    resultado: "",
+  });
 
-  handleChange(event) {
-    const { name, value, type, checked } = event.target;
-    this.setState({ [name]: value });
-  }
+  const inicioEstado = JSON.parse(localStorage.getItem("historial")) || [];
+  const [historial, setHistorial] = useState(inicioEstado);
 
-  calculate(event) {
-    this.setState((prevState) => ({
-      text: (eval(this.state.text) || "") + "",
-      result: [...prevState.result, this.state.text + "   "],
-      prevResult: [
-        ...prevState.prevResult,
-        +(eval(this.state.text) || "") + "  ",
-      ],
-    }));
-  }
-  back(event) {
-    const { name, value, type, checked } = event.target;
-    type === "abc"
-      ? this.setState({ text: this.state.text.slice(0, -1) })
-      : this.setState({ text: "" });
-  }
+  const handleInputChange = (event) => {
+    setinputState({
+      ...inputState,
+      [event.target.name]: event.target.value,
+    });
+  };
 
-  render() {
-    return (
-      <div className="card m-4 p-4">
-        <div className="resultbar">
-          <h1 className="text-center">
-            <i class="bi bi-calculator"></i> Calculadora
-          </h1>
+  const handleNumeroClick = (event) => {
+    setinputState({
+      ...inputState,
+      operacion: inputState.operacion + event.target.value,
+    });
+  };
+
+  const handleOperadorClick = (event) => {
+    setinputState({
+      ...inputState,
+      operacion: inputState.operacion + event.target.textContent,
+    });
+  };
+
+  const handleResultado = () => {
+    var datos = inputState.operacion;
+    var res = eval(datos);
+
+    localStorage.setItem(
+      "historial",
+      JSON.stringify([
+        ...historial,
+        {
+          operacion: datos,
+          resultado: res,
+        },
+      ])
+    );
+    setHistorial([
+      ...historial,
+      {
+        operacion: datos,
+        resultado: res,
+      },
+    ]);
+
+    setinputState({
+      ...inputState,
+      operacion: res,
+      resultado: "",
+    });
+  };
+
+  const handleClickLimpiar = () => {
+    setinputState({
+      ...inputState,
+      operacion: "",
+      resultado: "",
+    });
+  };
+
+  const handleResetHistorial = () => {
+    setHistorial([]);
+    localStorage.setItem("historial", JSON.stringify([]));
+  };
+
+  return (
+    <div className="App container">
+      <div className="row bg-light p-3 rounded-3 m-3 shadow-lg">
+        <div className="col p-4">
+          <h3 className="text-center">
+            <i class="bi bi-clock-history"></i> HISTORIAL
+          </h3>
           <hr />
+          <div className="col">
+            <div className="row m-4">
+              <div className="row">
+                {historial.length === 0 ? (
+                  "El historial se encuentra sin datos"
+                ) : (
+                  <il>
+                    {historial.map((item, index) => {
+                      return (
+                        <li className="fs-4">
+                          {item.operacion} = {item.resultado} &nbsp;
+                        </li>
+                      );
+                    })}
+                  </il>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="col text-center">
+            <button
+              className="btn btn-outline-danger borrar"
+              onClick={handleResetHistorial}
+            >
+              BORRAR HISTORIAL
+            </button>
+          </div>
         </div>
+        <div className="col mx-auto bg-light p-4">
+          <h3 className="text-center">
+            <i class="bi bi-calculator"></i> CASIO
+          </h3>
+          <hr />
+          <div className="row">
+            <div className="col m-3 mb-0">
+              <div className="row">
+                <input
+                  className="form-control form-control-lg"
+                  id="operacion"
+                  name="operacion"
+                  type="text"
+                  onChange={handleInputChange}
+                  value={inputState.operacion}
+                ></input>
+              </div>
+              <br></br>
+            </div>
+          </div>
 
-        <div className="history">
-          <h2>
-            <i class="bi bi-clock-history"></i> Historial
-          </h2>
-          <p>Operaciones: {this.state.result} </p>
-          <p>Resultados: {this.state.prevResult} </p>
-        </div>
-        <hr />
-        <input
-          className="my-3 form-control border border-dark"
-          name="text"
-          autoFocus="autofocus"
-          value={this.state.text}
-          onChange={this.handleChange}
-        />
+          <div className="row">
+            <div className="col">
+              <div className="row ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  onClick={handleClickLimpiar}
+                >
+                  CE
+                </button>
+              </div>
+            </div>
 
-        <div className="button mt-2 text-center">
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "+"}
-            onClick={this.handleChange}
-          >
-            +
-          </button>
+            <div className="col">
+              <div className="row">
+                <div className="col">
+                  <div className="row ms-0 me-0">
+                    <button
+                      type="button"
+                      className="btn btn-outline-dark"
+                      onClick={handleOperadorClick}
+                    >
+                      /
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "-"}
-            onClick={this.handleChange}
-          >
-            -
-          </button>
+          <div className="row">
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  value={7}
+                  onClick={handleNumeroClick}
+                >
+                  7
+                </button>
+              </div>
+            </div>
 
-          <button
-            className="btn btn-outline-dark"
-            type="adbc"
-            name="text"
-            value={this.state.text + "*"}
-            onClick={this.handleChange}
-          >
-            *
-          </button>
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  value={8}
+                  onClick={handleNumeroClick}
+                >
+                  8
+                </button>
+              </div>
+            </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "/"}
-            onClick={this.handleChange}
-          >
-            /
-          </button>
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  value={9}
+                  onClick={handleNumeroClick}
+                >
+                  9
+                </button>
+              </div>
+            </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "("}
-            onClick={this.handleChange}
-          >
-            (
-          </button>
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  onClick={handleOperadorClick}
+                >
+                  *
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + ")"}
-            onClick={this.handleChange}
-          >
-            )
-          </button>
-          <button
-            className="btn btn-outline-dark"
-            name="backspace"
-            onClick={() =>
-              this.setState({
-                text: this.state.text.slice(0, -1),
-              })
-            }
-          >
-            {" "}
-            Ce
-          </button>
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            type="abc"
-            onClick={this.back}
-          >
-            C
-          </button>
+          <div className="row">
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  value={4}
+                  onClick={handleNumeroClick}
+                >
+                  4
+                </button>
+              </div>
+            </div>
 
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  value={5}
+                  onClick={handleNumeroClick}
+                >
+                  5
+                </button>
+              </div>
+            </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "1"}
-            onClick={this.handleChange}
-          >
-            1
-          </button>
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  value={6}
+                  onClick={handleNumeroClick}
+                >
+                  6
+                </button>
+              </div>
+            </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "2"}
-            onClick={this.handleChange}
-          >
-            2
-          </button>
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  onClick={handleOperadorClick}
+                >
+                  -
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "3"}
-            onClick={this.handleChange}
-          >
-            3
-          </button>
+          <div className="row">
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  value={1}
+                  onClick={handleNumeroClick}
+                >
+                  1
+                </button>
+              </div>
+            </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "4"}
-            onClick={this.handleChange}
-          >
-            4
-          </button>
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  value={2}
+                  onClick={handleNumeroClick}
+                >
+                  2
+                </button>
+              </div>
+            </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "5"}
-            onClick={this.handleChange}
-          >
-            5
-          </button>
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  value={3}
+                  onClick={handleNumeroClick}
+                >
+                  3
+                </button>
+              </div>
+            </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "6"}
-            onClick={this.handleChange}
-          >
-            6
-          </button>
+            <div className="col">
+              <div className="row mt-3 ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-outline-dark"
+                  onClick={handleOperadorClick}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "7"}
-            onClick={this.handleChange}
-          >
-            7
-          </button>
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "8"}
-            onClick={this.handleChange}
-          >
-            8
-          </button>
+          <div className="row mt-3">
+            <div className="col">
+              <div className="row">
+                <div className="col">
+                  <div className="row ms-0 me-0">
+                    <button
+                      type="button"
+                      className="btn btn-outline-dark"
+                      value={0}
+                      onClick={handleNumeroClick}
+                    >
+                      0
+                    </button>
+                  </div>
+                </div>
 
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "9"}
-            onClick={this.handleChange}
-          >
-            9
-          </button>
+                <div className="col">
+                  <div className="row ms-0 me-0">
+                    <button
+                      type="button"
+                      className="btn btn-outline-dark"
+                      value={"."}
+                      onClick={handleNumeroClick}
+                    >
+                      .
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "."}
-            onClick={this.handleChange}
-          >
-            .
-          </button>
-          <button
-            className="btn btn-outline-dark"
-            name="text"
-            value={this.state.text + "0"}
-            onClick={this.handleChange}
-          >
-            0
-          </button>
-          <button
-            className="btn btn-dark"
-            name="text"
-            type="dbac"
-            value={this.state.text}
-            onClick={this.calculate}
-          >
-            =
-          </button>
+            <div className="col">
+              <div className="row ms-0 me-0">
+                <button
+                  type="button"
+                  className="btn btn-dark"
+                  onClick={handleResultado}
+                >
+                  =
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
-export default Layout;
+
+export default App;

@@ -1,5 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Koulen&family=League+Spartan:wght@200;300;400;500;600;700;900&family=Poppins:wght@100;200;300;400;500;600;700;900&display=swap");
 
+body {
+  background-image: url(fondo.svg);
+  margin: 6% 0 5% 0;
+}
+
 h1,
 h2,
 h3,
@@ -18,7 +23,14 @@ button {
   width: 20%;
   height: 50px;
   font-size: 25px;
-  margin: 5px;
   border: 2px solid #343a40;
   border-radius: 12px;
+}
+
+.bg-light {
+  background-color: #b4f8c8 !important;
+}
+
+.borrar {
+  width: 90%;
 }
